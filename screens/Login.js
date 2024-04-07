@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Alert, Button, Image, Pressable, SafeAreaView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
-import {useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 const logo = require("../assets/appLogo2.jpeg");
 const facebook = require("../assets/facebook.png");
 const linkedin = require("../assets/linkedIn.png");
@@ -9,10 +8,10 @@ const instagram = require("../assets/instagram.png");
 
 export default function LoginForm() {
     const navigation = useNavigation();
-    const [click,setClick] = useState(false);
+    const [click, setClick] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [username,setUsername] = useState("");
-    const [password,setPassword] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
 
     const login = (username, password) => {
       return username === "valid" && password === "valid";
@@ -22,8 +21,8 @@ export default function LoginForm() {
         const isLoginSuccessful = login(username, password);
         setIsLoggedIn(isLoginSuccessful);
         if (isLoginSuccessful) {
-          Alert.alert("Login Successful!");
-          navigation.navigate('Home');
+          // Alert.alert("Login Successful!");
+          navigation.navigate('Home', { username }); // Navigate to Profile with username
         } else {
           Alert.alert("Invalid credentials!")
         }
@@ -39,7 +38,7 @@ export default function LoginForm() {
             </View>
             <View style={styles.rememberView}>
                 <View style={styles.switch}>
-                    <Switch  value={click} onValueChange={setClick} trackColor={{true : "green" , false : "gray"}} />
+                    <Switch value={click} onValueChange={setClick} trackColor={{true : "green" , false : "gray"}} />
                     <Text style={styles.rememberText}>Remember Me</Text>
                 </View>
                 <View>
@@ -64,7 +63,7 @@ export default function LoginForm() {
 
             <Text style={styles.footerText}> Don't Have Account? </Text>
             <Pressable onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.signup}>  Sign Up</Text>
+                <Text style={styles.signup}>  Sign Up</Text>
             </Pressable>
         </SafeAreaView>
     );

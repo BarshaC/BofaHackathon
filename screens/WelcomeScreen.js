@@ -9,7 +9,7 @@ function WelcomeScreen({navigation}){
     >
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button}
-        onPress={() => navigation.navigate("Login")}
+        onPress={() => navigation.navigate("Post")}
         >
           <Text style={styles.buttonText}>SignIn</Text>
         </TouchableOpacity>

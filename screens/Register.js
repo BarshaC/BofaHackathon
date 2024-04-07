@@ -1,26 +1,58 @@
 import React, { useState } from 'react';
 import { ImageBackground, StyleSheet, View, Text, TouchableOpacity, TextInput, Modal, Pressable } from 'react-native';
-
-function Register({ navigation }) {
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const Register = ({ navigation }) => {
   const [fullName, setFullName] = useState('');
+  const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('');
   const [collegeYear, setCollegeYear] = useState('Freshman');
   const [department, setDepartment] = useState('');
+  const [collegeMajor, setCollegeMajor] = useState('');
   const [careerInterests, setCareerInterests] = useState('');
   const [showPicker, setShowPicker] = useState(false);
+  const [pickerType, setPickerType] = useState(null);
 
-  const handleRegister = () => {
-    console.log('Registration data:', { fullName, collegeYear, department, careerInterests });
-    navigation.navigate('Login');
+  const handleSubmit = async() => {
+    console.log('Registration data:', { fullName, userName, password, collegeYear, department, collegeMajor, careerInterests });
+    try {
+      await AsyncStorage.setItem(userName, JSON.stringify({fullName, collegeYear,department, collegeYear, department, collegeMajor, careerInterests}));
+    } catch (error) {
+      console.error('Errror saving user information: ', error);
+    }
+    navigation.navigate('Home');
   };
 
-  const togglePicker = () => {
+  const togglePickerVisibility = (type) => {
     setShowPicker(!showPicker);
+    setPickerType(type);
   };
 
-  const selectCollegeYear = (year) => {
-    setCollegeYear(year);
+  const selectOption = (option) => {
+    if (pickerType === 'collegeYear') {
+      setCollegeYear(option);
+    } else if (pickerType === 'department') {
+      setDepartment(option);
+    }
     setShowPicker(false);
   };
+
+  const collegeYearOptions = ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Masters', 'PhD'];
+
+  const departmentOptions = [
+    "College of Arts & Sciences",
+    "College of Dentistry",
+    "College of Engineering & Architecture",
+    "College of Fine Arts",
+    "College of Medicine",
+    "College of Nursing & Allied Health Sciences",
+    "College of Pharmacy",
+    "College of Business",
+    "College of Communications",
+    "School of Divinity",
+    "School of Education",
+    "School of Law",
+    "School of Social Work",
+  ];
 
   return (
     <ImageBackground
@@ -32,54 +64,73 @@ function Register({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Full Name"
-          onChangeText={text => setFullName(text)}
+          onChangeText={setFullName}
           value={fullName}
         />
-        <TouchableOpacity style={styles.pickerContainer} onPress={togglePicker}>
+        <TextInput
+          style={styles.input}
+          placeholder="Username"
+          onChangeText={setUserName}
+          value={userName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          secureTextEntry
+          onChangeText={setPassword}
+          value={password}
+        />
+        <TouchableOpacity style={styles.pickerContainer} onPress={() => togglePickerVisibility('collegeYear')}>
           <Text style={styles.pickerText}>{collegeYear}</Text>
           <Modal
             animationType="slide"
             transparent={true}
-            visible={showPicker}
+            visible={showPicker && pickerType === 'collegeYear'}
             onRequestClose={() => setShowPicker(false)}
           >
             <View style={styles.modalContainer}>
               <View style={styles.pickerModal}>
-                <Pressable onPress={() => selectCollegeYear('Freshman')}>
-                  <Text style={styles.modalItem}>Freshman</Text>
-                </Pressable>
-                <Pressable onPress={() => selectCollegeYear('Sophomore')}>
-                  <Text style={styles.modalItem}>Sophomore</Text>
-                </Pressable>
-                <Pressable onPress={() => selectCollegeYear('Junior')}>
-                  <Text style={styles.modalItem}>Junior</Text>
-                </Pressable>
-                <Pressable onPress={() => selectCollegeYear('Senior')}>
-                  <Text style={styles.modalItem}>Senior</Text>
-                </Pressable>
-                <Pressable onPress={() => selectCollegeYear('Masters')}>
-                  <Text style={styles.modalItem}>Masters</Text>
-                </Pressable>
-                <Pressable onPress={() => selectCollegeYear('PhD')}>
-                  <Text style={styles.modalItem}>PhD</Text>
-                </Pressable>
+                {collegeYearOptions.map((option, index) => (
+                  <Pressable key={index} onPress={() => selectOption(option)}>
+                    <Text style={styles.modalItem}>{option}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          </Modal>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.pickerContainer} onPress={() => togglePickerVisibility('department')}>
+          <Text style={styles.pickerText}>{department || 'Department'}</Text>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={showPicker && pickerType === 'department'}
+            onRequestClose={() => setShowPicker(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.pickerModal}>
+                {departmentOptions.map((option, index) => (
+                  <Pressable key={index} onPress={() => selectOption(option)}>
+                    <Text style={styles.modalItem}>{option}</Text>
+                  </Pressable>
+                ))}
               </View>
             </View>
           </Modal>
         </TouchableOpacity>
         <TextInput
           style={styles.input}
-          placeholder="Department"
-          onChangeText={text => setDepartment(text)}
-          value={department}
+          placeholder="Major"
+          onChangeText={setCollegeMajor}
+          value={collegeMajor}
         />
         <TextInput
           style={styles.input}
           placeholder="Career Interests"
-          onChangeText={text => setCareerInterests(text)}
+          onChangeText={setCareerInterests}
           value={careerInterests}
         />
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
       </View>
