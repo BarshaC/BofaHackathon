@@ -1,24 +1,27 @@
 CREATE DATABASE project_data;
 
 CREATE TABLE user_info(
-userid INTEGER PRIMARY KEY,
+userid INTEGER PRIMARY KEY AUTO_INCREMENT,
 email TEXT,
 pass TEXT,
 user_name TEXT
 ); 
 
 CREATE TABLE placement(
-userid INTEGER PRIMARY KEY,
-major TEXT,
-class_year INTEGER
+userid INTEGER,
+major TEXT PRIMARY KEY,
+class_year INTEGER,
+FOREIGN KEY (userid) REFERENCES user_info(userid)
 );
 
 CREATE TABLE school_sort(
-department PRIMARY KEY,
-FORIEGN KEY (major) REFERENCES placement(major)
+departmentid INTEGER PRIMARY KEY AUTO_INCREMENT,
+major TEXT,
+FOREIGN KEY (major) REFERENCES placement(major)
 );
 
-CREATE TABLE career_info(
-    
+CREATE TABLE postdata(
+postid INTEGER PRIMARY KEY AUTO_INCREMENT,
+posttext TEXT,
+likes INTEGER
 );
-DECLARE @email AS VARCHAR(100), @password AS VARCHAR(100), @user_name AS VARCHAR(100)
