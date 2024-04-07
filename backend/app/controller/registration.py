@@ -2,6 +2,7 @@ import mysql.connector
 from mysql.connector import errorcode
 
 
+
 try:
     mydb = mysql.connector.connect(
         user = "root",

@@ -9,7 +9,7 @@ user_name TEXT
 
 CREATE TABLE placement(
 userid INTEGER,
-major TEXT PRIMARY KEY,
+major TEXT PRIMARY KEY NOT NULL,
 class_year INTEGER,
 FOREIGN KEY (userid) REFERENCES user_info(userid)
 );
