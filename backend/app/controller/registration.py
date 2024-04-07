@@ -1,23 +1,26 @@
 import mysql.connector
+from mysql.connector import errorcode
+import json
 
+try:
+    mydb = mysql.connector.connect(
+        user = "root",
+        password = '12345678'
+        )
+    print(mydb)
+except mysql.connector.connect as err:
+    if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+        print('username or password is wrong')
+    elif err.errno == errorcode.ER_BAD_DB_ERROR:
+        print('database doent exsist')
+    else:
+        print(err)
+else:
+    mydb.close()
 
-mydb = mysql.connector.connect(
-    host = "localhost",
-    user = "root",
-    password = "kiki89kiki89", 
-    database = "project_data"
+cursor= mydb.cursor
 
-)
-# print(mydb)
-
-cursor = mydb.cursor()
-
-
-cursor.execute("CREATE DATABASE project_data")
-cursor.execute("CREATE TABLE user_info(userid INTEGER PRIMARY KEY,email TEXT, pass TEXT,user_name TEXT )")
-cursor.execute("CREATE TABLE placement(userid INTEGER PRIMARY KEY,major TEXT )")
-cursor.execute("CREATE TABLE school_sort(school PRIMARY KEY, FORIEGN KEY (major) REFERENCES placement(major) )")
-cursor.execute("DECLARE @email AS VARCHAR ")
-
-def log_data():
-    cursor.execute('INSERT INTO project_data VALUES( )')
+def user_registration(user_name, email, passw):
+    cursor('INSERT INTO user_info (email,passw,user_name) VALUES ('username','email','passw');')
+    return()
+user_registration()
