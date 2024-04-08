@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TextInput, StyleSheet, Button, FlatList } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Image, TextInput, StyleSheet, Button, FlatList, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useUser } from '../UserContext'; 
+import { useUser } from '../UserContext';
 import { Picker } from '@react-native-picker/picker';
 
 const Post = ({ fullName, userName, profilePic, postText, postImage, date }) => {
@@ -12,7 +12,7 @@ const Post = ({ fullName, userName, profilePic, postText, postImage, date }) => 
         <Image source={{ uri: profilePic || "../assets/colors.jpg" }} style={styles.profilePic} />
         <View>
           <Text>{fullName}</Text>
-          <Text>{userName}</Text>
+          <Text>@{userName}</Text>
         </View>
       </View>
       <Text style={styles.postText}>{postText}</Text>
@@ -26,12 +26,18 @@ const PostForm = () => {
   const [text, setText] = useState('');
   const [postImage, setPostImage] = useState('');
   const [category, setCategory] = useState('');
+  const [profilePic, setProfilePic] = useState(null);
 
   useEffect(() => {
-    if (!postImage && userInfo?.profilePic) {
-      setPostImage(userInfo.profilePic);
+    const fetchProfilePic = async () => {
+      const uri = await AsyncStorage.getItem(`profilePic_${userInfo.userName}`);
+      setProfilePic(uri);
+    };
+
+    if (userInfo?.userName) {
+      fetchProfilePic();
     }
-  }, [userInfo, postImage]);
+  }, [userInfo]);
 
   const handleUploadImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -47,17 +53,18 @@ const PostForm = () => {
   const savePost = async () => {
     const newPost = {
       id: `${userInfo.userName}-${Date.now()}`,
-      userName: userInfo.userName, 
-      fullName: userInfo.fullName, 
-      profilePic: userInfo.profilePic || "../assets/colors.jpg",
-      text, 
+      userName: userInfo.userName,
+      fullName: userInfo.fullName,
+      profilePic: profilePic || "../assets/colors.jpg",
+      text,
       postImage,
-      category, 
+      category,
       date: new Date().toISOString(),
       isLiked: false,
       likesCount: 0,
       savedBy: [],
     };
+
     try {
       const existingPosts = JSON.parse(await AsyncStorage.getItem('posts')) || [];
       const updatedPosts = [newPost, ...existingPosts];
@@ -73,7 +80,7 @@ const PostForm = () => {
   return (
     <View style={styles.container}>
       <View style={styles.userInfoContainer}>
-        <Image source={{ uri: userInfo.profilePic || "../assets/colors.jpg" }} style={styles.profilePic} />
+        <Image source={{ uri: profilePic || "../assets/colors.jpg" }} style={styles.profilePic} />
         <Text>{userInfo.fullName}</Text>
         <Text>@{userInfo.userName}</Text>
       </View>
@@ -105,7 +112,6 @@ const PostsFeed = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       const savedPosts = JSON.parse(await AsyncStorage.getItem('posts')) || [];
-      console.log('Fetched posts from AsyncStorage:', savedPosts);
       setPosts(savedPosts);
     };
     fetchPosts();
@@ -119,7 +125,7 @@ const PostsFeed = () => {
         <Post
           fullName={item.fullName}
           userName={item.userName}
-          profilePic={item.profilePic || 'defaultURI'}
+          profilePic={item.profilePic || "../assets/colors.jpg"}
           postText={item.text}
           postImage={item.postImage}
           date={item.date}
