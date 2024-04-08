@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
-from app.controller.models import User  # Assuming you have a User model
+from app.controller.models import User, Post  # Assuming you have a User model
 from app import db  # Assuming you have a database instance
 
 register_blueprint = Blueprint('register', __name__)
+posts_blueprint = Blueprint('posts', __name__)
 
 @register_blueprint.route('/register', methods=['POST'])
 def register_user():
@@ -35,3 +36,10 @@ def register_user():
     # Return a success response
     return jsonify({'message': 'User registered successfully'})
 
+@posts_blueprint.route('/post', methods=['GET'])
+def get_post():
+    posts = Post.query.all()
+    posts_data= [post.to_dict() for post in posts]
+    return jsonify(posts_data)
+
+#needs additional code 

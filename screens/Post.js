@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TextInput, StyleSheet, Button, FlatList } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '../UserContext'; 
 import { Picker } from '@react-native-picker/picker';
-import { useUser } from '../UserContext'; // Adjust the import path as needed
 
 const Post = ({ fullName, userName, profilePic, postText, postImage, date }) => {
   return (
@@ -27,11 +27,10 @@ const PostForm = () => {
   const [postImage, setPostImage] = useState('');
   const [category, setCategory] = useState('');
 
-  // Effect hook to set initial state based on userInfo
   useEffect(() => {
     if (!postImage && userInfo?.profilePic) {
-    setPostImage(userInfo.profilePic);
-  }
+      setPostImage(userInfo.profilePic);
+    }
   }, [userInfo, postImage]);
 
   const handleUploadImage = async () => {
@@ -47,25 +46,25 @@ const PostForm = () => {
 
   const savePost = async () => {
     const newPost = {
-      id: '${userInfo,username}-${Date.now()}',
+      id: `${userInfo.userName}-${Date.now()}`,
       userName: userInfo.userName, 
       fullName: userInfo.fullName, 
-      profilePic: userInfo.profilePic || "../assets/colors.jpg", // This is fine for user info, not affecting the post image
+      profilePic: userInfo.profilePic || "../assets/colors.jpg",
       text, 
-      postImage, // This is the image selected for the post
+      postImage,
       category, 
       date: new Date().toISOString(),
       isLiked: false,
-      likesCount:0,
-      savedby:[],
+      likesCount: 0,
+      savedBy: [],
     };
     try {
       const existingPosts = JSON.parse(await AsyncStorage.getItem('posts')) || [];
-      const updatedPosts = [newPost, ...existingPosts]; // Prepend new post to keep the latest at the top
+      const updatedPosts = [newPost, ...existingPosts];
       await AsyncStorage.setItem('posts', JSON.stringify(updatedPosts));
-      setText(''); // Clear the text for a new post
-      setPostImage(''); // Clear the postImage so the user can select a new one for the next post
-      setCategory(''); // Reset category for a new post
+      setText('');
+      setPostImage('');
+      setCategory('');
     } catch (error) {
       console.error('Error saving post:', error);
     }
@@ -115,7 +114,7 @@ const PostsFeed = () => {
   return (
     <FlatList
       data={posts}
-      keyExtractor={(item, index) => index.toString()}
+      keyExtractor={(item, index) => `${item.id}-${index}`}
       renderItem={({ item }) => (
         <Post
           fullName={item.fullName}
@@ -129,7 +128,6 @@ const PostsFeed = () => {
     />
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -153,12 +151,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-  },
-  profilePic: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10,
   },
   postText: {
     marginBottom: 10,
@@ -186,7 +178,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 300,
     borderRadius: 5,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
   },
 });
 

@@ -24,6 +24,7 @@ const Home = () => {
         postsData.sort((a, b) => new Date(b.date) - new Date(a.date));
         setPosts(postsData);
         setFilteredPosts(postsData);
+        setFilteredPosts(postsData);
       } catch (error) {
         console.error('Failed to fetch posts:', error);
       }
@@ -86,6 +87,45 @@ const Home = () => {
     // Persist the changes in AsyncStorage
     AsyncStorage.setItem('posts', JSON.stringify(updatedPosts));
   };
+  useEffect(() => {
+    const filterPosts = () => {
+      if (selectedCategory === 'all') {
+        setFilteredPosts(posts);
+      } else {
+        const filtered = posts.filter(post => post.category === selectedCategory);
+        setFilteredPosts(filtered);
+      }
+    };
+    filterPosts();
+  }, [selectedCategory, posts]);
+
+  const renderItem = ({ item }) => (
+    <View style={styles.postContainer}>
+      <View style={styles.postHeader}>
+        <Image
+          source={{ uri: item.profilePic || 'defaultURI' }}
+          style={styles.profilePic}
+          resizeMode="cover"
+        />
+        <View>
+          <Text style={styles.fullName}>{item.fullName}</Text>
+          <Text style={styles.username}>@{item.userName}</Text>
+          {item.category && (
+            <Text style={styles.category}>{`Category: ${item.category}`}</Text>
+          )}
+        </View>
+      </View>
+      <Text style={styles.text}>{item.text}</Text>
+      {item.postImage && (
+        <Image
+          source={{ uri: item.postImage }}
+          style={styles.postImage}
+          resizeMode="contain"
+        />
+      )}
+      <Text style={styles.date}>{item.date}</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>

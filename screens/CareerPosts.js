@@ -1,6 +1,6 @@
 import React from "react";
-import { View,Text,StyleSheet } from 'react-native';
-import { Post, PostForm } from "./Post";
+import { View,Text,StyleSheet, FlatList} from 'react-native';
+import { Post} from "./Post";
 
 
 const CareerPosts = () =>{
@@ -29,3 +29,25 @@ const fetchCareerPost = async () =>{
     }
 };
 
+
+const renderPostItem = ({ item }) => <Post {...item} />;
+
+return (
+  <View style={styles.container}>
+    <FlatList
+      data={posts}
+      renderItem={renderPostItem}
+      keyExtractor={(item) => item.id.toString()}
+    />
+  </View>
+);
+
+
+const styles = StyleSheet.create({
+container: {
+  flex: 1,
+  padding: 10,
+},
+});
+
+export default CareerPosts;
