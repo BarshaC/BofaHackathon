@@ -47,13 +47,17 @@ const PostForm = () => {
 
   const savePost = async () => {
     const newPost = {
+      id: '${userInfo,username}-${Date.now()}',
       userName: userInfo.userName, 
       fullName: userInfo.fullName, 
       profilePic: userInfo.profilePic || "../assets/colors.jpg", // This is fine for user info, not affecting the post image
       text, 
       postImage, // This is the image selected for the post
       category, 
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      isLiked: false,
+      likesCount:0,
+      savedby:[],
     };
     try {
       const existingPosts = JSON.parse(await AsyncStorage.getItem('posts')) || [];

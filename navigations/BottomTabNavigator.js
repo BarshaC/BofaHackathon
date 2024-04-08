@@ -17,8 +17,8 @@ function BottomTabNavigator() {
           borderTopWidth: 5,
           borderTopColor: '#BFD7B5'
         },
-        activeTintColor: "#BFD7B5",
-        inactiveTintColor: "white",
+        activeTintColor: "blue",
+        inactiveTintColor: "#BFD7B5",
       }}
     >
       <Tab.Screen 

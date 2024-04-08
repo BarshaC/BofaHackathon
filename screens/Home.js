@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, Text, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, FlatList, Text, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const windowWidth = Dimensions.get('window').width;
-const imageHeight = windowWidth * 0.35;
+const windowHeight = Dimensions.get('window').height;
+
+const imageHeightPercentage = 0.5; // Adjusted from 40% to 50%
+const imageHeight = windowHeight * imageHeightPercentage;
+const imageWidth = windowWidth - 10;
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -16,7 +21,6 @@ const Home = () => {
       try {
         const postsJson = await AsyncStorage.getItem('posts');
         let postsData = postsJson ? JSON.parse(postsJson) : [];
-        // Sort posts by date in descending order
         postsData.sort((a, b) => new Date(b.date) - new Date(a.date));
         setPosts(postsData);
         setFilteredPosts(postsData);
@@ -39,6 +43,50 @@ const Home = () => {
     filterPosts();
   }, [selectedCategory, posts]);
 
+  const handleLike = (postId) => {
+    const updatedPosts = posts.map(post => {
+      if (post.id === postId) {
+        const updatedPost = {
+          ...post,
+          isLiked: !post.isLiked,
+          likesCount: post.isLiked ? post.likesCount - 1 : post.likesCount + 1
+        };
+        return updatedPost;
+      }
+      return post;
+    });
+
+    setPosts(updatedPosts);
+    // Persist the changes in AsyncStorage
+    AsyncStorage.setItem('posts', JSON.stringify(updatedPosts));
+  };
+
+  // Handle Comment
+  const handleComment = (postId) => {
+    // Implement comment functionality here
+    console.log("Comment on Post:", postId);
+  };
+
+  // Handle Save
+  const handleSave = (postId) => {
+    const updatedPosts = posts.map(post => {
+      if (post.id === postId) {
+        // Check if the current user has already saved the post
+        const hasSaved = post.savedBy.includes(userInfo.userName);
+        const newSavedBy = hasSaved 
+          ? post.savedBy.filter(username => username !== userInfo.userName) // Unsave if already saved
+          : [...post.savedBy, userInfo.userName]; // Save otherwise
+  
+        return { ...post, savedBy: newSavedBy };
+      }
+      return post;
+    });
+  
+    setPosts(updatedPosts);
+    // Persist the changes in AsyncStorage
+    AsyncStorage.setItem('posts', JSON.stringify(updatedPosts));
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.pickerContainer}>
@@ -47,7 +95,7 @@ const Home = () => {
           selectedValue={selectedCategory}
           onValueChange={(itemValue) => setSelectedCategory(itemValue)}
           style={styles.picker}
-          mode="dropdown" // Android only
+          mode="dropdown"
         >
           <Picker.Item label="All" value="all" />
           <Picker.Item label="Career" value="career" />
@@ -58,7 +106,7 @@ const Home = () => {
       <FlatList
         data={filteredPosts}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <View style={styles.postContainer}>
             <View style={styles.postHeader}>
               <Image
@@ -82,6 +130,17 @@ const Home = () => {
                 resizeMode="contain"
               />
             )}
+            <View style={styles.actionsContainer}>
+              <TouchableOpacity onPress={() => handleLike(index)}>
+              <Icon name="thumbs-up" size={24} color={item.isLiked ? "#74BD96" : "#ccc"} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleComment(index)}>
+                <Icon name="comment" size={24} color="#74BD96" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleSave(index)}>
+                <Icon name="bookmark" size={24} color="#74BD96" />
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       />
@@ -101,7 +160,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: '#ffffff', // Consider using your app's theme color
+    backgroundColor: '#ffffff', 
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#cccccc',
@@ -109,11 +168,22 @@ const styles = StyleSheet.create({
   pickerLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginRight: 10,
   },
   picker: {
-    flex: 1,
-    height: 40, // Adjust as needed
+    // flex: 1,
+    // height: 60, 
+    // background: 'white',
+    height: 50,
+    width: '100%',
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: 10,
+  },
+  actionText: {
+    color: '#007bff',
+    fontSize: 16,
   },
   postContainer: {
     backgroundColor: '#ffffff',
@@ -154,7 +224,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   postImage: {
-    width: '100%',
+    width: imageWidth,
     height: imageHeight,
     borderRadius: 5,
     marginBottom: 10,
