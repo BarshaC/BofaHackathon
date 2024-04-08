@@ -1,58 +1,28 @@
-import mysql.connector
-from mysql.connector import errorcode
+# import mysql.connector
 
 
+# mydb = mysql.connector.connect(
+#     host = "localhost",
+#     user = "root",
+#     password = "kiki89kiki89", 
+#     database = "project_data"
 
-try:
-    mydb = mysql.connector.connect(
-        user = "root",
-        password = '12345678',
-        database = 'project_data'
-        )
-    print(mydb)
-except mysql.connector.connect as err:
-    if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-        print('username or password is wrong')
-    elif err.errno == errorcode.ER_BAD_DB_ERROR:
-        print('database doent exsist')
-    else:
-        print(err)
-else:
-    mydb.close()
+# )
+# # print(mydb)
 
-cursor= mydb.cursor
+# cursor = mydb.cursor()
 
-new_user = ("INSERT INTO user_info "
-               "(email, passw, username) "
-               "VALUES (%s, %s, %s)")
 
-new_post = ("INSERT INTO post_data "
-               "(posttext, userid) "
-               "VALUES (%s, %s)") 
+# cursor.execute("CREATE DATABASE project_data")
+# cursor.execute("CREATE TABLE user_info(userid INTEGER PRIMARY KEY,email TEXT, pass TEXT,user_name TEXT )")
+# cursor.execute("CREATE TABLE placement(userid INTEGER PRIMARY KEY,major TEXT )")
+# cursor.execute("CREATE TABLE school_sort(school PRIMARY KEY, FORIEGN KEY (major) REFERENCES placement(major) )")
+# cursor.execute("DECLARE @email AS VARCHAR ")
 
-def create_new_user(user_name, email, passw):
-    acc_created=False
-    while acc_created!=True:
-        try:
-            acc_info={
-            'email': email,
-            'user_name':user_name,
-            'passw':passw
-            }
-            acc_created=1
-            
-        except:
-            email=input('enter your email: ')
-            user_name=input('create a username: ')
-            passw=input('enter a password: ')
-    cursor.execute(new_user,acc_info)
-    mydb.commit()
-    mydb.close()
-def create_new_post(posttext):
-    pass
-# def user_registration(user_name, email, passw):
-#     cursor('INSERT INTO user_info (email,passw,user_name) VALUES ('username','email','passw');')
-#     return()
-# user_registration()
-for line in mydb:
-    print(mydb)
+# def log_data():
+#     cursor.execute('INSERT INTO project_data VALUES( )')
+
+import sqlite3 as db
+
+conn = db.connect
+

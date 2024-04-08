@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ImageBackground, StyleSheet, View, Text, TouchableOpacity, TextInput, Modal, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '../UserContext';
+
 const Register = ({ navigation }) => {
   const [fullName, setFullName] = useState('');
   const [userName, setUserName] = useState('');
@@ -11,11 +13,17 @@ const Register = ({ navigation }) => {
   const [careerInterests, setCareerInterests] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const [pickerType, setPickerType] = useState(null);
+  const { setUser } = useUser();
 
   const handleSubmit = async() => {
     console.log('Registration data:', { fullName, userName, password, collegeYear, department, collegeMajor, careerInterests });
     try {
-      await AsyncStorage.setItem(userName, JSON.stringify({fullName, collegeYear,department, collegeYear, department, collegeMajor, careerInterests}));
+      const userData = { fullName, userName, password, collegeYear, department, collegeMajor, careerInterests };
+      await AsyncStorage.setItem(userName, JSON.stringify(userData));
+      console.log("Saved Sucessfully!")
+      const savedData = await AsyncStorage.getItem(userName);
+      console.log('Saved data:', JSON.parse(savedData));
+      setUser(userData)
     } catch (error) {
       console.error('Errror saving user information: ', error);
     }

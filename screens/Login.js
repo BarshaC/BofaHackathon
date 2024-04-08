@@ -1,31 +1,49 @@
 import React, { useState } from 'react';
 import { Alert, Button, Image, Pressable, SafeAreaView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-const logo = require("../assets/appLogo2.jpeg");
+import { useUser } from '../UserContext'
+const logo = require("../assets/logo.png");
 const facebook = require("../assets/facebook.png");
 const linkedin = require("../assets/linkedIn.png");
 const instagram = require("../assets/instagram.png");
+const login_bottom = require("../assets/login_bottom.png")
 
 export default function LoginForm() {
     const navigation = useNavigation();
+    const { setUser } = useUser();
     const [click, setClick] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const login = (username, password) => {
-      return username === "valid" && password === "valid";
-    };
+    const handleLogin = async () => {
+      try {
+          console.log(`Attempting login with username: ${username}`);
+          const userDataString = await AsyncStorage.getItem(username);
+          const userData = JSON.parse(userDataString);
+          console.log(`Fetched user data for ${username}:`, userData);
 
-    const handleLogin = () => {
-        const isLoginSuccessful = login(username, password);
-        setIsLoggedIn(isLoginSuccessful);
-        if (isLoginSuccessful) {
-          // Alert.alert("Login Successful!");
-          navigation.navigate('Home', { username }); // Navigate to Profile with username
-        } else {
-          Alert.alert("Invalid credentials!")
+          if (!userData) {
+            console.log('No user data found for this username.'); // Log if no data found
+            Alert.alert("Invalid credentials!");
+            return;
         }
+  
+        if (userData.password === password) {
+            setUser(userData);
+            console.log('Login successful.'); // Log success
+            navigation.navigate('Home', { userData });
+        } else {
+            console.log('Password does not match.'); // Log password mismatch
+            console.log('Actual password', userData.password)
+            console.log('Entered Password',password)
+            Alert.alert("Invalid credentials!");
+        }
+      } catch (error) {
+          console.log('Login error:', error);
+          Alert.alert("Login failed", "Please try again later.");
+      }
     };
 
     return (
@@ -65,14 +83,19 @@ export default function LoginForm() {
             <Pressable onPress={() => navigation.navigate('Register')}>
                 <Text style={styles.signup}>  Sign Up</Text>
             </Pressable>
+            <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+                <Image source={login_bottom} style={styles.image2} />
+            </View>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
   container : {
+    flex: 1,
     alignItems : "center",
-    paddingTop: 70,
+    backgroundColor: "white",
+    paddingTop: 100,
   },
   image : {
     height : 160,
@@ -84,7 +107,7 @@ const styles = StyleSheet.create({
     textTransform : "uppercase",
     textAlign: "center",
     paddingVertical : 40,
-    color : "red"
+    color : "#BFD7B5"
   },
   inputView : {
     gap : 15,
@@ -95,9 +118,10 @@ const styles = StyleSheet.create({
   input : {
     height : 50,
     paddingHorizontal : 20,
-    borderColor : "red",
-    borderWidth : 1,
-    borderRadius: 7
+    backgroundColor: '#74BD96',
+    borderColor : "#BFD7B5",
+    borderWidth : 4,
+    borderRadius: 20
   },
   rememberView : {
     width : "100%",
@@ -119,14 +143,14 @@ const styles = StyleSheet.create({
   },
   forgetText : {
     fontSize : 11,
-    color : "red"
+    color : "#BFD7B5"
   },
   button : {
-    backgroundColor : "red",
+    backgroundColor : "#74BD96",
     height : 45,
-    borderColor : "gray",
-    borderWidth  : 1,
-    borderRadius : 5,
+    borderColor : "#BFD7B5",
+    borderWidth  : 4,
+    borderRadius : 20,
     alignItems : "center",
     justifyContent : "center"
   },
@@ -164,5 +188,10 @@ const styles = StyleSheet.create({
   signup : {
     color : "red",
     fontSize : 13
+  },
+  image2 : {
+    width : '100%',
+    height : 'auto',
+    resizeMode: 'cover'
   }
 });

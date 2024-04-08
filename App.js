@@ -9,12 +9,14 @@ import Profile from './screens/Profile';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MainScreen from './screens/MainScreen';
 import AuthNavigator from './navigations/AuthNavigator'
-
+import { UserProvider } from './UserContext';
 
 export default function App() {
   return (
+    <UserProvider>
     <NavigationContainer>
       <AuthNavigator></AuthNavigator>
     </NavigationContainer>
+    </UserProvider>
   );
 }
